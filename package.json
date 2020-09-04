@@ -1,0 +1,33 @@
+{
+  "name": "liquidate-repo",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start-script": "node index.js",
+    "compile": "truffle compile",
+    "test": "truffle test",
+    "test-coverage": "truffle run coverage --file test/*.js",
+    "lint": "solium -d contracts/",
+    "ganache-mainnet": "ganache-cli -f https://cloudflare-eth.com/"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.6",
+    "bignumber.js": "^9.0.0",
+    "ethlint": "^1.2.5",
+    "ganache-cli": "^6.9.1",
+    "solidity-coverage": "^0.7.7",
+    "truffle-plugin-verify": "^0.3.10"
+  },
+  "dependencies": {
+    "@bzxnetwork/bzx.js": "^0.5.0",
+    "@bzxnetwork/contracts": "^0.4.9",
+    "@truffle/hdwallet-provider": "^1.0.42",
+    "axios": "^0.20.0",
+    "dotenv": "^8.2.0",
+    "node-cron": "^2.0.3",
+    "web3": "^1.2.11"
+  }
+}

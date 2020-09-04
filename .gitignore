@@ -1,0 +1,16 @@
+# truffle contract builds
+build
+
+# env file
+.env
+
+# node files
+node_modules
+package-lock.json
+
+# test coverage
+/coverage.json
+/coverage
+
+# editor settings - vscode
+.vscode
