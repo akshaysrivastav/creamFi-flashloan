@@ -17,7 +17,9 @@ contract Yielder is ContractWithFlashLoan, Ownable {
     {}
 
     function start(address loanToken, uint256 flashLoanAmount) public payable {
-        initateFlashLoan(address(this), loanToken, flashLoanAmount, "");
+        bytes memory params = abi.encode(msg.sender);
+
+        initateFlashLoan(address(this), loanToken, flashLoanAmount, params);
     }
 
     function afterLoanSteps(
@@ -26,9 +28,16 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         uint256 fees,
         bytes memory params
     ) internal {
-        logTokenBalance(true, address(0));
+        logTokenBalance(false, loanedToken);
         emit Logger(amount);
         emit Logger(fees);
+
+        address messageSender = abi.decode(params, (address));
+        uint loanRepayAmount = amount.add(fees);
+        uint loanedTokenBal = IERC20(loanedToken).balanceOf(address(this));
+        if (loanedTokenBal < loanRepayAmount) {
+            IERC20(loanedToken).transferFrom(messageSender, address(this), loanRepayAmount - loanedTokenBal);
+        }
 
     }
 
