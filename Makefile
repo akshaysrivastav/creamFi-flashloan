@@ -2,8 +2,8 @@
 build:
 	npx truffle build
 
-# eg: make deploy-liquidator network=kovan
-deploy-liquidator: build
-	npx truffle exec --network $(network) scripts/deploy-liquidator.js
+# eg: make deploy-yielder network=kovan
+deploy-yielder: build
+	npx truffle exec --network $(network) scripts/deploy-yielder.js
 
-.PHONY: build deploy-liquidator
+.PHONY: build deploy-yielder

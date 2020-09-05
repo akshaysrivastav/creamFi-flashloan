@@ -1,10 +1,9 @@
 
-const cron = require('node-cron');
-const Web3 = require("web3");
+const { ethers } = require("ethers");
 const HDWalletProvider = require("@truffle/hdwallet-provider");
 require('dotenv').config()
 
-const { listen } = require('./scripts/hunt');
+// const { listen } = require('./scripts/yield');
 const addresses = require('./scripts/common/addresses');
 
 process.on('uncaughtException', err => {
@@ -15,27 +14,28 @@ process.on('uncaughtException', err => {
 
 const network = process.env.NETWORK || 'kovan';
 
-let provider = new HDWalletProvider(process.env.MNEMONIC_OR_KEY, `https://${network}.infura.io/v3/${process.env.INFURA_ID}`);
-const web3 = new Web3(provider);
+const web3Provider = new HDWalletProvider(process.env.PRIVATEKEY, `https://${network}.infura.io/v3/${process.env.INFURA_ID}`);
+const provider = new ethers.providers.Web3Provider(web3Provider);
 
-const interval = 15;
-
-console.log('Script Started...');
-console.log(`\nListening every ${interval} seconds...`);
+console.log('\nScript Started...');
 
 const contractAddresses = addresses[network];
 
 let world = {};    // global object
-world.web3 = web3;
+world.provider = provider;
 world.contractAddresses = contractAddresses;
 
 const start = async () => {
   try {
-    world.accounts = await web3.eth.getAccounts();
 
-    world.txIssuerWallet = web3.eth.accounts.privateKeyToAccount(process.env.PRIVATEKEY);
-    world.txIssuerWallet.nonce = await web3.eth.getTransactionCount(world.txIssuerWallet.address, 'pending');
-    console.log(`\nAccount for Liquidation txn: ${world.txIssuerWallet.address}`);
+    let accountAddr = await provider.getSigner().getAddress();
+    let nonce = await provider.getTransactionCount(accountAddr);
+    world.account = {
+      address: accountAddr,
+      nonce: nonce
+    }
+
+    console.log(`\nUsing Account: ${accountAddr}`);
 
     listen(world)    // for testing
     // startCron();
@@ -44,15 +44,6 @@ const start = async () => {
   }
 }
 start();
-
-const startCron = () => {
-  cron.schedule(`*/${interval} * * * * *`, () => {
-    listen(world)
-      .catch((error) => {
-        console.error(error);
-      });
-  });
-}
 
 process.on('unhandledRejection', err => {
   console.log('UNHANDLED REJECTION! 💥 Shutting down...');

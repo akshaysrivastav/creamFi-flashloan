@@ -1,13 +1,13 @@
 
-bZx Liquidation
+CreamFi Helper
 =================
 
 
-This is a helper repository to liquidate unhealthy bZx loans.
+This is a helper repository to CreamFi.
 
-It contains a nodejs script to monitor unhealthy loans and initiate liquidation transactions along with some helper utilities.
+It contains a nodejs script to initiate transactions along with some helper utilities.
 
-The smart contract contains the on-chain logic for flash loans and liquidations.
+The smart contract contains the on-chain logic for flash loans.
 Please see the implementation at **_Liquidator.sol_**. All other contracts are helper for flash loans and are inherited by **_Liquidator.sol_**.
 
 
@@ -15,8 +15,8 @@ Installation
 ------------
 To run, pull the repository from GitHub and install its dependencies. You will need [npm](https://docs.npmjs.com/cli/install) installed.
 
-    git clone https://github.com/tomcbean/liquidation_helper
-    cd liquidation_helper
+    git clone https://github.com/akshaysrivastav/creamFi-flashloan
+    cd creamFi-flashloan
     `npm install`
 
 You can then compile the contracts with:
