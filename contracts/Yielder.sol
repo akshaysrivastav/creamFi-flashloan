@@ -7,6 +7,7 @@ import "./IERC20.sol";
 import "./ContractWithFlashLoan.sol";
 import "./creamfi-helper/CTokenInterfaces.sol";
 import "./creamfi-helper/CEtherInterface.sol";
+import "./creamfi-helper/ComptrollerInterface.sol";
 
 contract Yielder is ContractWithFlashLoan, Ownable {
     using SafeMath for uint256;
@@ -18,7 +19,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         ContractWithFlashLoan(_aaveLPProvider)
     {}
 
-    function start(address cTokenAddr, uint256 flashLoanAmount, bool isCEther) public payable {
+    function start(address cTokenAddr, uint256 flashLoanAmount, bool isCEther, bool windYield) public payable {
         address loanToken;
         if (isCEther) {
             loanToken = ETHER;
@@ -27,7 +28,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
             loanToken = CErc20Interface(cTokenAddr).underlying();
         }
 
-        bytes memory params = abi.encode(msg.sender, cTokenAddr, isCEther);
+        bytes memory params = abi.encode(msg.sender, cTokenAddr, isCEther, windYield);
 
         initateFlashLoan(address(this), loanToken, flashLoanAmount, params);
     }
@@ -41,10 +42,17 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         address messageSender;
         address cTokenAddr;
         bool isCEther;
+        bool windYield;
 
-        (messageSender, cTokenAddr, isCEther) = abi.decode(params, (address, address, bool));
-        supplyToCream(cTokenAddr, amount, isCEther);
-        cTokenBorrow(cTokenAddr, amount);
+        (messageSender, cTokenAddr, isCEther, windYield) = abi.decode(params, (address, address, bool, bool));
+
+        if (windYield) {
+            supplyToCream(cTokenAddr, amount, isCEther);
+            cTokenBorrow(cTokenAddr, amount);
+        } else {
+            repayBorrowedFromCream(cTokenAddr, amount, isCEther);
+            cTokenRedeemUnderlying(cTokenAddr, amount);
+        }
 
         if (loanedToken == ETHER) {
             return;
@@ -65,6 +73,18 @@ contract Yielder is ContractWithFlashLoan, Ownable {
             checkBalThenTransferFrom(underlying, msg.sender, amount);
             checkThenErc20Approve(underlying, cTokenAddr, amount);
             cTokenMint(cTokenAddr, amount);
+        }    
+        return true;
+    }
+
+    function repayBorrowedFromCream(address cTokenAddr, uint amount, bool isCEther) public payable returns (bool) {
+        if (isCEther) {
+            CEtherInterface(cTokenAddr).repayBorrow.value(amount)();
+        } else {
+            address underlying = CErc20Interface(cTokenAddr).underlying();
+            checkBalThenTransferFrom(underlying, msg.sender, amount);
+            checkThenErc20Approve(underlying, cTokenAddr, amount);
+            cTokenRepayBorrow(cTokenAddr, amount);
         }    
         return true;
     }
@@ -91,6 +111,31 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         uint err = CErc20Interface(cToken).repayBorrow(repayAmount);
         require(err == 0, "cToken repay failed");
         return true;
+    }
+
+    function claimCream(address comptroller) public onlyOwner {
+        ComptrollerInterface(comptroller).claimComp(address(this));
+    }
+
+    function claimAndTransferCream(address comptrollerAddr, address receiver) public onlyOwner {
+
+        ComptrollerInterface comptroller = ComptrollerInterface(comptrollerAddr);
+        comptroller.claimComp(address(this));
+
+        IERC20 compToken = IERC20(comptroller.getCompAddress());
+        uint totalCompBalance = compToken.balanceOf(address(this));
+
+        require(compToken.transfer(receiver, totalCompBalance), "cream transfer failed");
+    }
+
+    function claimAndTransferCreamForCToken(address comptrollerAddr, address[] memory cTokens, address receiver) public onlyOwner {
+        ComptrollerInterface comptroller = ComptrollerInterface(comptrollerAddr);
+        comptroller.claimComp(address(this), cTokens);
+
+        IERC20 compToken = IERC20(comptroller.getCompAddress());
+        uint totalCompBalance = compToken.balanceOf(address(this));
+
+        require(compToken.transfer(receiver, totalCompBalance), "cream transfer failed");
     }
 
     function checkBalThenTransferFrom(address tokenAddress, address user, uint amount) internal returns (bool) {

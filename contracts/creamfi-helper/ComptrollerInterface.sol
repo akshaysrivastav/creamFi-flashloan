@@ -69,4 +69,8 @@ contract ComptrollerInterface {
         address cTokenBorrowed,
         address cTokenCollateral,
         uint repayAmount) external view returns (uint, uint);
+
+    function claimComp(address holder) public;
+    function claimComp(address holder, address[] memory cTokens) public;
+    function getCompAddress() public view returns (address);
 }
