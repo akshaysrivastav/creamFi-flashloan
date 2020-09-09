@@ -11,8 +11,6 @@ import "./creamfi-helper/CEtherInterface.sol";
 contract Yielder is ContractWithFlashLoan, Ownable {
     using SafeMath for uint256;
     
-    event Logger(uint256 value);
-
     address public constant ETHER = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
 
     constructor(address _aaveLPProvider)
@@ -149,17 +147,5 @@ contract Yielder is ContractWithFlashLoan, Ownable {
 
     function ethBalance() public view returns (uint balance) {
         return address(this).balance;
-    }
-
-    // for testing
-    function logTokenBalance(bool isEth, address tokenAddress) public returns (uint256) {
-        uint256 balOfThis;
-        if (isEth) {
-            balOfThis = address(this).balance;
-        } else {
-            balOfThis = IERC20(tokenAddress).balanceOf(address(this));
-        }        
-        emit Logger(balOfThis);
-        return balOfThis;
     }
 }
