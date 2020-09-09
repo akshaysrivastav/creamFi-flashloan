@@ -14,7 +14,7 @@ module.exports = {
 
     kovan: {
       provider: () => new HDWalletProvider(
-          process.env.MNEMONIC_OR_KEY,
+          process.env.PRIVATEKEY,
           `https://kovan.infura.io/v3/${process.env.INFURA_ID}`,
           0, //address_index
           10, // num_addresses
@@ -27,9 +27,22 @@ module.exports = {
       // skipDryRun: false // Skip dry run before migrations? (default: false for public nets )
     },
 
+    ropsten: {
+      provider: () => new HDWalletProvider(
+          process.env.PRIVATEKEY,
+          `https://ropsten.infura.io/v3/${process.env.INFURA_ID}`,
+          0,
+          10,
+          true
+      ),
+      network_id: 3,
+      gasPrice: 100*1000*1000*1000, // default 10 gwei
+      timeoutBlocks: 50,
+    },
+
     mainnet: {
       provider: () => new HDWalletProvider(
-          process.env.MNEMONIC_OR_KEY,
+          process.env.PRIVATEKEY,
           `https://mainnet.infura.io/v3/${process.env.INFURA_ID}`,
           0, //address_index
           10, // num_addresses
