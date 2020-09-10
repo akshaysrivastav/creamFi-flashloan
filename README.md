@@ -5,19 +5,21 @@ CreamFi Helper
 
 This is a helper repository to CreamFi.
 
-It contains a nodejs script to initiate transactions along with some helper utilities.
-
-The smart contract contains the on-chain logic for flash loans.
-Please see the implementation at **_Liquidator.sol_**. All other contracts are helper for flash loans and are inherited by **_Liquidator.sol_**.
+The smart contract contains the on-chain logic for flash loans and Cream token yields.
+Please see the implementation at **_Yielder.sol_**. All other contracts are helper for flash loans - yield farming and are inherited by **_Yielder.sol_**.
 
 
 Installation
 ------------
-To run, pull the repository from GitHub and install its dependencies. You will need [npm](https://docs.npmjs.com/cli/install) installed.
+To run, pull the repository from Git and install its dependencies. You will need [npm](https://docs.npmjs.com/cli/install) installed.
 
     git clone https://github.com/akshaysrivastav/creamFi-flashloan
     cd creamFi-flashloan
-    `npm install`
+    `npm ci`
+
+```
+If 'npm ci' throws any error then try 'npm install'
+```
 
 You can then compile the contracts with:
 
