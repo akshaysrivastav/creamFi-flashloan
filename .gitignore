@@ -6,7 +6,6 @@ build
 
 # node files
 node_modules
-package-lock.json
 
 # test coverage
 /coverage.json

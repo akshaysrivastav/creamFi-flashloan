@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start-script": "node index.js",
     "compile": "truffle compile",
     "lint": "solium -d contracts/"
   },
@@ -20,6 +19,7 @@
     "axios": "^0.20.0",
     "dotenv": "^8.2.0",
     "ethers": "^5.0.9",
+    "truffle": "^5.1.43",
     "web3": "^1.2.11"
   }
 }
