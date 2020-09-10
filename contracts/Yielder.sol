@@ -254,30 +254,42 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         return true;
     }
 
-    function transferToken(address token, address to, uint256 amount)
-        public
-        onlyOwner
-        returns (bool success)
-    {
+    function transferToken(
+        address token,
+        address to,
+        uint256 amount
+    ) public onlyOwner returns (bool success) {
         return transferTokenInternal(token, to, amount);
     }
 
-    function transferTokenInternal(address token, address to, uint256 amount)
-        internal
-        returns (bool success)
-    {
+    function transferTokenInternal(
+        address token,
+        address to,
+        uint256 amount
+    ) internal returns (bool success) {
         IERC20(token).transfer(to, amount);
         return true;
     }
 
-    function supplyBalance(address cToken) public view returns (uint256 supplyBalance) {
-        uint cTokenBal = IERC20(cToken).balanceOf(address(this));
-        uint exchangeRateStored = CTokenInterface(cToken).exchangeRateStored();
+    function supplyBalance(address cToken)
+        public
+        view
+        returns (uint256 supplyBalance)
+    {
+        uint256 cTokenBal = IERC20(cToken).balanceOf(address(this));
+        uint256 exchangeRateStored = CTokenInterface(cToken)
+            .exchangeRateStored();
         supplyBalance = cTokenBal.mul(exchangeRateStored).div(1e18);
     }
 
-    function borrowBalance(address cToken) public view returns (uint256 borrowBalance) {
-        borrowBalance = CTokenInterface(cToken).borrowBalanceStored(address(this));
+    function borrowBalance(address cToken)
+        public
+        view
+        returns (uint256 borrowBalance)
+    {
+        borrowBalance = CTokenInterface(cToken).borrowBalanceStored(
+            address(this)
+        );
     }
 
     function tokenBalance(address token) public view returns (uint256 balance) {
