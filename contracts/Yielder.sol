@@ -270,6 +270,16 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         return true;
     }
 
+    function supplyBalance(address cToken) public view returns (uint256 supplyBalance) {
+        uint cTokenBal = IERC20(cToken).balanceOf(address(this));
+        uint exchangeRateStored = CTokenInterface(cToken).exchangeRateStored();
+        supplyBalance = cTokenBal.mul(exchangeRateStored).div(1e18);
+    }
+
+    function borrowBalance(address cToken) public view returns (uint256 borrowBalance) {
+        borrowBalance = CTokenInterface(cToken).borrowBalanceStored(address(this));
+    }
+
     function tokenBalance(address token) public view returns (uint256 balance) {
         return IERC20(token).balanceOf(address(this));
     }
