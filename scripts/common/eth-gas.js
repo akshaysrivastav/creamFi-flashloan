@@ -2,14 +2,14 @@ const axios = require('axios').default;
 
 const getGasPrice = async (world) => {
   try {
-    const chainId = await world.web3.eth.getChainId();
-    if (chainId !== 1) {
-      return world.web3.utils.toWei('1', 'gwei');
+    const network = await world.web3.eth.net.getNetworkType();
+    if (network !== 'main') {
+      return world.web3.utils.toWei('10', 'gwei');
     }
 
     let res = await axios.get('https://ethgasstation.info/json/ethgasAPI.json');
     let data = res.data;
-    let proposedGP = (parseFloat(data['fast']) + parseFloat(data['average'])) / (10 * 2);   // convert to gWei then average
+    let proposedGP = parseFloat(data['fast']) / 10;   // convert to gWei
     proposedGP = proposedGP.toFixed();
     return world.web3.utils.toWei(proposedGP, 'gwei');
   } catch (error) {

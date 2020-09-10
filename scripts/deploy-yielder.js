@@ -3,38 +3,36 @@
  */
 
 const addresses = require('./common/addresses');
+const { getGasPrice } = require('./common/eth-gas');
 
 const Yielder = artifacts.require("Yielder");
-const IERC20 = artifacts.require("IERC20");
 
 module.exports = async (callback) => {
   try {
+    let world = {};
+    world.web3 = web3;
+
     let network = await web3.eth.net.getNetworkType();
     network = network === 'main' ? 'mainnet' : network;
 
     const contractAddresses = addresses[network];
 
     let accounts = await web3.eth.getAccounts();
-    console.log(`Using account: ${accounts}`);
+    console.log(`\nUsing account: ${accounts}`);
 
-    console.log(`Deploying Yielder Contract...`);
-    let YielderC = await Yielder.new(contractAddresses.aave.LendingPoolAddressesProvider);
+    let gasPrice = await getGasPrice(world);
+    if (network === 'mainnet' && process.env.MAINNET_GAS_PRICE) {
+      gasPrice = process.env.MAINNET_GAS_PRICE;
+    }
 
-    console.log(`\nLiquidator deployed at: ${YielderC.address}\n`);
+    let txParams = {
+      gasPrice
+    }
 
-    // const dai = '0x8f746eC7ed5Cc265b90e7AF0f5B07b4406C9dDA8';
-    // const user = '0x6c24d5422cDFea5d1e844FC1634f0c30Af471DEe';
+    console.log(`\nDeploying Yielder Contract...`);
+    let YielderC = await Yielder.new(contractAddresses.aave.LendingPoolAddressesProvider, txParams);
 
-    // const token = await IERC20.at(dai);
-    // let iniAllowance = await token.allowance(user, YielderC.address);
-    // console.log(parseFloat(iniAllowance));
-
-    // let amount = 10 ** 30;
-    // amount = amount.toLocaleString('fullwide', {useGrouping: false});
-
-    // let tx = await token.approve(YielderC.address, amount);
-    // let fiAllowance = await token.allowance(user, YielderC.address);
-    // console.log(parseFloat(fiAllowance));
+    console.log(`\nYielder deployed at: ${YielderC.address}\n`);
 
     callback();
   } catch (err) {
