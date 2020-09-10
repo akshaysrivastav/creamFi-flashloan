@@ -48,5 +48,10 @@ contract ContractWithFlashLoan is FlashLoanReceiverBase {
         );
     }
 
-    function afterLoanSteps(address, uint256, uint256, bytes memory) internal {}
+    function afterLoanSteps(
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) internal {}
 }
