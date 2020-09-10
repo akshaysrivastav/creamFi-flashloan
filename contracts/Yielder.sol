@@ -19,7 +19,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         ContractWithFlashLoan(_aaveLPProvider)
     {}
 
-    function start(address cTokenAddr, uint256 flashLoanAmount, bool isCEther, bool windYield) public payable {
+    function start(address cTokenAddr, uint256 flashLoanAmount, bool isCEther, bool windYield) public payable onlyOwner {
         address loanToken;
         if (isCEther) {
             loanToken = ETHER;
@@ -45,6 +45,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         bool windYield;
 
         (messageSender, cTokenAddr, isCEther, windYield) = abi.decode(params, (address, address, bool, bool));
+        require(owner() == messageSender, "caller is not the owner");
 
         if (windYield) {
             supplyToCream(cTokenAddr, amount, isCEther);
@@ -65,7 +66,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         }
     }
 
-    function supplyToCream(address cTokenAddr, uint amount, bool isCEther) public payable returns (bool) {
+    function supplyToCream(address cTokenAddr, uint amount, bool isCEther) public payable onlyOwner returns (bool) {
         if (isCEther) {
             CEtherInterface(cTokenAddr).mint.value(amount)();
         } else {
@@ -77,7 +78,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         return true;
     }
 
-    function repayBorrowedFromCream(address cTokenAddr, uint amount, bool isCEther) public payable returns (bool) {
+    function repayBorrowedFromCream(address cTokenAddr, uint amount, bool isCEther) public payable onlyOwner returns (bool) {
         if (isCEther) {
             CEtherInterface(cTokenAddr).repayBorrow.value(amount)();
         } else {
@@ -87,6 +88,14 @@ contract Yielder is ContractWithFlashLoan, Ownable {
             cTokenRepayBorrow(cTokenAddr, amount);
         }    
         return true;
+    }
+
+    function withdrawFromCream(address cTokenAddr, uint amount) public onlyOwner returns (bool) {
+        return cTokenRedeemUnderlying(cTokenAddr, amount);
+    }
+
+    function borrowFromCream(address cTokenAddr, uint amount) public onlyOwner returns (bool) {
+        return cTokenBorrow(cTokenAddr, amount);
     }
 
     function cTokenMint(address cToken, uint mintAmount) internal returns (bool) {
