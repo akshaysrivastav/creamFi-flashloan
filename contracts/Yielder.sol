@@ -238,35 +238,35 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         return true;
     }
 
-    function transferEth(uint256 amount)
+    function transferEth(address payable to, uint256 amount)
         public
         onlyOwner
         returns (bool success)
     {
-        return transferEthInternal(amount);
+        return transferEthInternal(to, amount);
     }
 
-    function transferEthInternal(uint256 amount)
+    function transferEthInternal(address payable to, uint256 amount)
         internal
         returns (bool success)
     {
-        address(uint160(owner())).transfer(amount);
+        to.transfer(amount);
         return true;
     }
 
-    function transferToken(address token, uint256 amount)
+    function transferToken(address token, address to, uint256 amount)
         public
         onlyOwner
         returns (bool success)
     {
-        return transferTokenInternal(token, amount);
+        return transferTokenInternal(token, to, amount);
     }
 
-    function transferTokenInternal(address token, uint256 amount)
+    function transferTokenInternal(address token, address to, uint256 amount)
         internal
         returns (bool success)
     {
-        IERC20(token).transfer(owner(), amount);
+        IERC20(token).transfer(to, amount);
         return true;
     }
 
