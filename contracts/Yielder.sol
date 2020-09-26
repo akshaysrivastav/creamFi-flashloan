@@ -62,10 +62,10 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         require(owner() == messageSender, "caller is not the owner");
 
         if (windYield) {
-            supplyToCream(cTokenAddr, amount, isCEther);
+            supplyToCreamInternal(cTokenAddr, amount, isCEther);
             cTokenBorrow(cTokenAddr, amount);
         } else {
-            repayBorrowedFromCream(cTokenAddr, amount, isCEther);
+            repayBorrowedFromCreamInternal(cTokenAddr, amount, isCEther);
             cTokenRedeemUnderlying(cTokenAddr, amount);
         }
 
@@ -91,15 +91,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         uint256 amount,
         bool isCEther
     ) public payable onlyOwner returns (bool) {
-        if (isCEther) {
-            CEtherInterface(cTokenAddr).mint.value(amount)();
-        } else {
-            address underlying = CErc20Interface(cTokenAddr).underlying();
-            checkBalThenTransferFrom(underlying, msg.sender, amount);
-            checkThenErc20Approve(underlying, cTokenAddr, amount);
-            cTokenMint(cTokenAddr, amount);
-        }
-        return true;
+        return supplyToCreamInternal(cTokenAddr, amount, isCEther);
     }
 
     function repayBorrowedFromCream(
@@ -107,15 +99,7 @@ contract Yielder is ContractWithFlashLoan, Ownable {
         uint256 amount,
         bool isCEther
     ) public payable onlyOwner returns (bool) {
-        if (isCEther) {
-            CEtherInterface(cTokenAddr).repayBorrow.value(amount)();
-        } else {
-            address underlying = CErc20Interface(cTokenAddr).underlying();
-            checkBalThenTransferFrom(underlying, msg.sender, amount);
-            checkThenErc20Approve(underlying, cTokenAddr, amount);
-            cTokenRepayBorrow(cTokenAddr, amount);
-        }
-        return true;
+        return repayBorrowedFromCreamInternal(cTokenAddr, amount, isCEther);
     }
 
     function withdrawFromCream(address cTokenAddr, uint256 amount)
@@ -140,6 +124,38 @@ contract Yielder is ContractWithFlashLoan, Ownable {
     {
         uint256 err = CErc20Interface(cToken).mint(mintAmount);
         require(err == 0, "cToken mint failed");
+        return true;
+    }
+
+    function supplyToCreamInternal(
+        address cTokenAddr,
+        uint256 amount,
+        bool isCEther
+    ) internal returns (bool) {
+        if (isCEther) {
+            CEtherInterface(cTokenAddr).mint.value(amount)();
+        } else {
+            address underlying = CErc20Interface(cTokenAddr).underlying();
+            checkBalThenTransferFrom(underlying, msg.sender, amount);
+            checkThenErc20Approve(underlying, cTokenAddr, amount);
+            cTokenMint(cTokenAddr, amount);
+        }
+        return true;
+    }
+
+    function repayBorrowedFromCreamInternal(
+        address cTokenAddr,
+        uint256 amount,
+        bool isCEther
+    ) internal returns (bool) {
+        if (isCEther) {
+            CEtherInterface(cTokenAddr).repayBorrow.value(amount)();
+        } else {
+            address underlying = CErc20Interface(cTokenAddr).underlying();
+            checkBalThenTransferFrom(underlying, msg.sender, amount);
+            checkThenErc20Approve(underlying, cTokenAddr, amount);
+            cTokenRepayBorrow(cTokenAddr, amount);
+        }
         return true;
     }
 
