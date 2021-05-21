@@ -3,7 +3,7 @@ CreamFi Helper
 =================
 
 
-This is a helper repository to CreamFi.
+These are some helper smart contracts which generates yields on Cream Finance protocol (fork of Compound protocol) by leveraging the Flash Loan feature of Aave.
 
 The smart contract contains the on-chain logic for flash loans and Cream token yields.
 Please see the implementation at **_Yielder.sol_**. All other contracts are helper for flash loans - yield farming and are inherited by **_Yielder.sol_**.
@@ -69,32 +69,32 @@ To save gas this can be done only once for every token with large amounts.
 
 
 ## Contract Usage:
-#### For Section A of the requirements doc
+#### Supply asset using flash loan
 
-Txn 1 - Call supplyToCream() which takes parameters
+Call supplyToCream() which takes parameters
 * cTokenAddr - address of cToken contract.
 * amount - amount of tokens to be supplied (in decimals).
 * isCEther - true if supplying Ether else false.
  
-Txn 2 - call start() 
+Call start() 
 * cTokenAddr -  address of cToken contract.
 * flashLoanAmount - amount of tokens in decimals.
 * isCEther - true if the asset is Ether else false.
 * windYield - true.
 
-#### For Section B Unwind CREAM farming
+#### Unwind CREAM farming
 
-Txn 1 - call start() 
+Call start() 
 * cTokenAddr -  address of cToken contract.
 * flashLoanAmount - amount of tokens in decimals.
 * isCEther - true if the asset is Ether else false.
 * windYield - false.
 
-Txn 2 - call withdrawFromCream()
+Call withdrawFromCream()
 * cTokenAddr - address of cToken contract.
 * amount - amount of tokens to be withdrawn (in decimals).
 
-#### For Section C - Claim CREAM
+#### Claim CREAM
 
 This can be done by three ways - call claim for all markets, call claim for single market, perform any transaction on respective market. The first two are described below.
 
@@ -107,7 +107,7 @@ Call claimAndTransferCreamForCToken() with parameters
 * cTokens - array of cToken addresses for which you want to receive Cream, like [“0xabc...”, “0xdef...”]
 * receiver -  Address of CREAM receiver
 
-#### Section D - To transfer funds lying in the Yielder smart contract
+#### To transfer funds lying in the Yielder smart contract
 
 For ETH - call transferEth()
 * to - address of receiver
@@ -118,11 +118,12 @@ For any ERC20 - call transferToken()
 * to - address of receiver
 * amount - amount in decimals
 
-#### Section E - Supply and Borrow balance of contract
+#### To check Supply and Borrow balance of contract
 
 Call supplyBalance()
 * cToken - address of cToken
-* Call borrowBalance()
+
+Call borrowBalance()
 * cToken - address of cToken
 
 
@@ -159,5 +160,3 @@ Or
 make deploy-yielder network=ropsten
 ```
  
-
-Documentation is here also - https://docs.google.com/document/d/1wKlKHz5S2rJZPOuJpcocI8bMAPjZCcwpdrvSA-iFY7A/edit?usp=sharing
